@@ -73,21 +73,6 @@ def evaluate_small_board(board, player):
     player_count = sum(row.count(player) for row in board)
     return player_count
 
-# Check if a move allows the opponent to win
-def opponent_can_win(big_board, active_row, active_col):
-    """
-    Check if the opponent ('X') can win the next turn on the given small board.
-    """
-    active_board = big_board[active_row][active_col]
-    for row in range(3):
-        for col in range(3):
-            if active_board[row][col] == ' ':
-                active_board[row][col] = 'X'
-                if check_winner(active_board, 'X'):  # Opponent wins
-                    active_board[row][col] = ' '  # Undo the move
-                    return True
-                active_board[row][col] = ' '  # Undo the move
-    return False
 
 # Minimax Algorithm with Alpha-Beta Pruning
 def minimax(big_board, active_row, active_col, is_maximizing, depth, alpha, beta, max_depth=5):
@@ -242,37 +227,7 @@ def best_move_with_details(big_board, active_row, active_col):
         normalized_scores = {key: 100 / len(adjusted_scores) for key in adjusted_scores} if adjusted_scores else {}
 
     return move, scores, normalized_scores, dangers
-def will_direct_to_disadvantage(big_board, move, player='O'):
-    """
-    Checks if making a move would direct the opponent to a small board
-    where the opponent ('X') has an immediate winning move on their next turn.
-    Parameters:
-        big_board: 3x3 grid of 3x3 boards (the ultimate tic-tac-toe board).
-        move: Tuple representing the coordinates of the move (big_row, big_col).
-        player: The current player ('O').
-    Returns:
-        True if the move sends the opponent to a board where they can win on their next turn, False otherwise.
-    """
-    # Determine the small board the opponent will play in
-    next_row, next_col = move
-    # Check if the board (next_row, next_col) is already won or full
-    if check_small_board_full(big_board[next_row][next_col]) or check_winner(big_board[next_row][next_col], 'O') or check_winner(big_board[next_row][next_col], 'X'):
-        return False  # It cannot be a disadvantage if the board is full or already won
 
-    # Simulate the opponent's next turn on board (next_row, next_col)
-    small_board = big_board[next_row][next_col]
-    for row in range(3):
-        for col in range(3):
-            if small_board[row][col] == ' ':
-                # Simulate the opponent's move
-                small_board[row][col] = 'X'
-                # Check if this move results in the opponent winning immediately
-                if check_winner(small_board, 'X'):
-                    small_board[row][col] = ' '  # Undo the simulated move
-                    return True  # The opponent can win immediately
-                small_board[row][col] = ' '  # Undo the simulated move
-
-    return False  # No immediate win opportunities for the opponent
 def save_game(big_board, active_row, active_col, last_move, filename="saved_game.json"):
     """
     Saves the current game state to a file.
